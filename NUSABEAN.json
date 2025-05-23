@@ -1,0 +1,43 @@
+{
+    "daftarKopi" : 
+    [
+        {
+            "asal" : "dedededew",
+            "deskripsi" : "jdvbchjvdcjhdcjgdvcjdcgdvcdcvdjgcvdjgvcdgcvdvcdjgcv",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 1,
+            "nama" : "bchbcdhcbdshcb",
+            "rasa" : "vcdsgvcjdgvcjhdvcjgdsvcdgjvcdsgjvcdvgjd",
+            "stok" : 19.0
+        }
+    ],
+    "daftarPengguna" : 
+    [
+        {
+            "kataSandi" : "123",
+            "namaPengguna" : "Admin",
+            "peran" : "Admin"
+        },
+        {
+            "kataSandi" : "123",
+            "namaPengguna" : "R",
+            "peran" : "Pelanggan"
+        },
+        {
+            "kataSandi" : "123",
+            "namaPengguna" : "E",
+            "peran" : "Pelanggan"
+        }
+    ],
+    "riwayatPembelian" : 
+    [
+        {
+            "jumlahKg" : 1000,
+            "namaKopi" : "bchbcdhcbdshcb",
+            "pembeli" : "R",
+            "totalHarga" : 2000.0,
+            "waktu" : "2025-05-20 22:29:01"
+        }
+    ]
+}
