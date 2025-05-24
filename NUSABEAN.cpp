@@ -9,6 +9,7 @@
 #include <limits>
 #include <cmath>
 #include <cctype>
+#include <stdexcept> 
 
 #include "json/json.h"
 #include "src/jsoncpp.cpp"
@@ -649,7 +650,7 @@ void MenuManajemenData() {
             cout.fill(' ');
 
             switch(pilihanMenu) {
-                case 1: {
+                case 1: { // Update Nama Biji Kopi
                     string namaBaru;
                     do {
                         cout << "Masukkan nama/jenis biji kopi baru (maks. 30 karakter): ";
@@ -658,34 +659,61 @@ void MenuManajemenData() {
                         if (namaBaru.length() > 30) { TanganiKesalahan("Nama kopi tidak boleh lebih dari 30 karakter!"); continue; }
                         if (namaBaru.empty()) { TanganiKesalahan("Nama kopi tidak boleh kosong!"); continue;}
                         if (!ApakahStringAlphaSpasiHubung(namaBaru)) { TanganiKesalahan("Nama hanya boleh huruf, spasi, dan tanda hubung!"); }
-                    } while (namaBaru.empty() || !ApakahStringAlphaSpasiHubung(namaBaru) || namaBaru.length() > 30);
+                    } while (namaBaru.empty() || namaBaru.length() > 30 || !ApakahStringAlphaSpasiHubung(namaBaru));
                     g_daftarKopi[indeksKopi].namaProdukKopi = namaBaru;
                     SimpanSemuaDataKeJson();
                     cout << "Nama/jenis biji kopi berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 2: {
+                case 2: { // Update Asal Biji Kopi
                     string asalBaru;
                      do {
-                        cout << "Masukkan asal biji kopi baru: ";
+                        cout << "Masukkan asal biji kopi baru (maks. 35 karakter): "; // MODIFIED: Prompt
                         getline(cin, asalBaru);
                         asalBaru = PotongSpasiTepi(asalBaru);
                         if (asalBaru.empty()) { TanganiKesalahan("Asal tidak boleh kosong!"); continue;}
+                        if (asalBaru.length() > 35) { TanganiKesalahan("Asal biji kopi tidak boleh lebih dari 35 karakter!"); continue; } // MODIFIED: Length check
                         if (!ApakahStringAlphaSpasiHubung(asalBaru)) { TanganiKesalahan("Asal hanya boleh huruf, spasi, dan tanda hubung!");}
-                    } while (asalBaru.empty() || !ApakahStringAlphaSpasiHubung(asalBaru));
+                    } while (asalBaru.empty() || asalBaru.length() > 35 || !ApakahStringAlphaSpasiHubung(asalBaru)); // MODIFIED: Condition
                     g_daftarKopi[indeksKopi].asalDaerahKopi = asalBaru;
                     SimpanSemuaDataKeJson();
                     cout << "Asal biji kopi berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 3: {
+                case 3: { // Update Stok
                     double stokBaru;
+                    string stokInputStr;
                     while (true) {
-                        stokBaru = AmbilInputDouble("Masukkan stok baru (dalam ton): ");
-                        if (stokBaru < 0) {
-                            TanganiKesalahan("Stok harus berupa angka >= 0!");
-                        } else {
-                            break;
+                        cout << "Masukkan stok baru (dalam ton, input maks. 10 karakter): "; // MODIFIED: Prompt
+                        getline(cin, stokInputStr);
+                        stokInputStr = PotongSpasiTepi(stokInputStr);
+
+                        if (stokInputStr.length() > 10) { // MODIFIED: Length check
+                            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!");
+                            continue;
+                        }
+                        if (stokInputStr.empty()) { // MODIFIED: Empty check
+                            TanganiKesalahan("Input stok tidak boleh kosong!");
+                            continue;
+                        }
+
+                        try {
+                            size_t parsed_chars;
+                            stokBaru = stod(stokInputStr, &parsed_chars); // MODIFIED: String to double
+                             if (parsed_chars < stokInputStr.length()) { 
+                                 TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
+                                 continue;
+                             }
+
+                            if (stokBaru < 0) {
+                                TanganiKesalahan("Stok harus berupa angka >= 0!");
+                            } else {
+                                break;
+                            }
+                        } catch (const std::invalid_argument& ia) {
+                            TanganiKesalahan("Input stok harus berupa angka desimal!");
+                        } catch (const std::out_of_range& oor) {
+                            TanganiKesalahan("Input stok di luar jangkauan angka yang valid!");
                         }
                     }
                     g_daftarKopi[indeksKopi].stokTonKopi = stokBaru;
@@ -1059,7 +1087,7 @@ void TambahDataKopiBaru() {
 
     string tempNama;
     bool isDuplicate;
-    do {
+    do { // Input Nama Kopi (maks 30 karakter) - Sudah sesuai
         isDuplicate = false;
         cout << "Nama Biji Kopi (maks. 30 karakter, huruf, spasi, -): ";
         getline(cin, tempNama);
@@ -1089,13 +1117,14 @@ void TambahDataKopiBaru() {
     kopiBaru.namaProdukKopi = tempNama;
 
     string tempAsal;
-    do {
-        cout << "Asal Daerah (huruf, spasi, -): ";
+    do { // Input Asal Kopi (maks 35 karakter)
+        cout << "Asal Daerah (maks. 35 karakter, huruf, spasi, -): "; // MODIFIED: Prompt
         getline(cin, tempAsal);
         tempAsal = PotongSpasiTepi(tempAsal);
         if (tempAsal.empty()) { TanganiKesalahan("Asal daerah tidak boleh kosong!"); continue; }
+        if (tempAsal.length() > 35) { TanganiKesalahan("Asal daerah terlalu panjang (maks 35 karakter)!"); continue; } // MODIFIED: Length check
         if (!ApakahStringAlphaSpasiHubung(tempAsal)) { TanganiKesalahan("Asal hanya boleh huruf, spasi, dan tanda hubung!"); }
-    } while (tempAsal.empty() || !ApakahStringAlphaSpasiHubung(tempAsal));
+    } while (tempAsal.empty() || tempAsal.length() > 35 || !ApakahStringAlphaSpasiHubung(tempAsal)); // MODIFIED: Condition
     kopiBaru.asalDaerahKopi = tempAsal;
 
     string tempRasa;
@@ -1119,12 +1148,38 @@ void TambahDataKopiBaru() {
     } while (tempDeskripsi.length() > 350);
     kopiBaru.deskripsiKopi = tempDeskripsi;
 
-    while(true) {
-        kopiBaru.stokTonKopi = AmbilInputDouble("Stok (dalam Ton, angka > 0): ");
-        if (kopiBaru.stokTonKopi <= 0) {
-            TanganiKesalahan("Jumlah stok harus lebih dari 0 Ton!");
-        } else {
-            break;
+    string stokInputStr; // MODIFIED: For Stok input
+    while(true) { // Input Stok (input string maks 10 karakter)
+        cout << "Stok (dalam Ton, angka > 0, input maks. 10 karakter): "; // MODIFIED: Prompt
+        getline(cin, stokInputStr);
+        stokInputStr = PotongSpasiTepi(stokInputStr);
+
+        if (stokInputStr.length() > 10) { // MODIFIED: Length check
+            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!");
+            continue;
+        }
+        if (stokInputStr.empty()) { // MODIFIED: Empty check
+            TanganiKesalahan("Input stok tidak boleh kosong!");
+            continue;
+        }
+        
+        try {
+            size_t parsed_chars;
+            kopiBaru.stokTonKopi = stod(stokInputStr, &parsed_chars); // MODIFIED: String to double
+            if (parsed_chars < stokInputStr.length()) { 
+                 TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
+                 continue;
+            }
+
+            if (kopiBaru.stokTonKopi <= 0) {
+                TanganiKesalahan("Jumlah stok harus lebih dari 0 Ton!");
+            } else {
+                break; 
+            }
+        } catch (const std::invalid_argument& ia) {
+            TanganiKesalahan("Input stok harus berupa angka desimal!");
+        } catch (const std::out_of_range& oor) {
+            TanganiKesalahan("Input stok di luar jangkauan angka yang valid!");
         }
     }
 
