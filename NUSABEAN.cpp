@@ -9,10 +9,9 @@
 #include <limits>
 #include <cmath>
 #include <cctype>
-#include <stdexcept> 
-
-#include "json/json.h"
-#include "src/jsoncpp.cpp"
+#include <stdexcept>
+#include "json/json.h" 
+#include "src/jsoncpp.cpp" 
 
 #ifdef _WIN32
 #include <windows.h>
@@ -88,9 +87,12 @@ string FormatRupiah(double nilai) {
 void Enter() {
     cout << "Tekan Enter untuk melanjutkan...";
     cout.flush();
-    cin.clear();
+    cin.clear(); 
     string dummy;
     getline(cin, dummy);
+    if (cin.fail()) { 
+        cin.clear(); 
+    }
 }
 
 void TanganiKesalahan(const string& pesan) {
@@ -99,50 +101,68 @@ void TanganiKesalahan(const string& pesan) {
 }
 
 void BersihkanInput() {
-    cin.ignore(10000, '\n');
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-int AmbilInputInteger(const string& prompt, const string& pesanErrorTipe = "Input harus berupa angka!", const string& pesanErrorFormat = "Format input tidak valid. Jangan ada karakter tambahan setelah angka.") {
-    int nilai;
-    while (true) {
-        cout << prompt;
-        cin >> nilai;
-        if (cin.fail()) {
-            cin.clear();
-            BersihkanInput();
-            cout << "\nKesalahan: " << pesanErrorTipe << endl;
+bool AmbilInputInteger(const string& prompt, int& nilai_out, const string& pesanErrorTipe = "Input harus berupa angka!", const string& pesanErrorFormat = "Format input tidak valid. Jangan ada karakter tambahan setelah angka.") {
+    string line_input;
+    cout << prompt;
+    if (!getline(cin, line_input)) {
+        cin.clear();
+        BersihkanInput(); 
+        cout << "\nKesalahan: Gagal membaca input." << endl;
+        Enter();
+        return false;
+    }
+
+    stringstream ss(line_input);
+    if (ss >> nilai_out) {
+        char sisa;
+        if (ss >> sisa) {
+            cout << "\nKesalahan: " << pesanErrorFormat << endl;
+            Enter();
+            return false;
         } else {
-            if (cin.peek() != '\n' && cin.peek() != EOF) {
-                BersihkanInput();
-                cout << "\nKesalahan: " << pesanErrorFormat << endl;
-            } else {
-                BersihkanInput();
-                return nilai;
-            }
+            return true; 
         }
+    } else {
+        cout << "\nKesalahan: " << pesanErrorTipe << endl;
+        Enter();
+        return false;
     }
 }
 
-double AmbilInputDouble(const string& prompt, const string& pesanErrorTipe = "Input harus berupa angka desimal!", const string& pesanErrorFormat = "Format input tidak valid. Jangan ada karakter tambahan setelah angka.") {
-    double nilai;
-     while (true) {
-        cout << prompt;
-        cin >> nilai;
-        if (cin.fail()) {
-            cin.clear();
-            BersihkanInput();
-            cout << "\nKesalahan: " << pesanErrorTipe << endl;
+bool AmbilInputDouble(const string& prompt, double& nilai_out, const string& pesanErrorTipe = "Input harus berupa angka desimal!", const string& pesanErrorFormat = "Format input tidak valid. Jangan ada karakter tambahan setelah angka.") {
+    double nilai; 
+    string line_input;
+    cout << prompt;
+    if (!getline(cin, line_input)) {
+        cin.clear();
+        BersihkanInput();
+        cout << "\nKesalahan: Gagal membaca input." << endl;
+        Enter();
+        return false;
+    }
+
+    stringstream ss(line_input);
+    if (ss >> nilai) { 
+        char sisa;
+        if (ss >> sisa) { 
+            cout << "\nKesalahan: " << pesanErrorFormat << endl;
+            Enter();
+            return false;
         } else {
-            if (cin.peek() != '\n' && cin.peek() != EOF) {
-                BersihkanInput();
-                cout << "\nKesalahan: " << pesanErrorFormat << endl;
-            } else {
-                BersihkanInput();
-                return nilai;
-            }
+            nilai_out = nilai; 
+            return true;
         }
+    } else { 
+        cout << "\nKesalahan: " << pesanErrorTipe << endl;
+        Enter();
+        return false;
     }
 }
+
 
 string PotongSpasiTepi(const string& str) {
     size_t first = str.find_first_not_of(" \t\n\r");
@@ -293,7 +313,8 @@ void SimpanSemuaDataKeJson() {
 
 void MuatSemuaDataDariJson() {
     Json::Value data_db_json;
-    Json::Reader pembacaJson;
+    Json::CharReaderBuilder readerBuilder; 
+    string errs;
     ifstream file_masukan(NAMA_FILE_DATABASE);
     bool file_baru_dibuat = false;
 
@@ -301,8 +322,10 @@ void MuatSemuaDataDariJson() {
         if (file_masukan.peek() == ifstream::traits_type::eof()) {
             file_baru_dibuat = true;
         } else {
-            if (!pembacaJson.parse(file_masukan, data_db_json)) {
-                cerr << "Kesalahan parsing JSON: " << pembacaJson.getFormattedErrorMessages()
+            // Using CharReader for parsing
+            unique_ptr<Json::CharReader> reader(readerBuilder.newCharReader());
+            if (!Json::parseFromStream(readerBuilder, file_masukan, &data_db_json, &errs)) {
+                cerr << "Kesalahan parsing JSON: " << errs
                      << ". Membuat file database baru." << endl;
                 file_baru_dibuat = true;
             }
@@ -491,7 +514,7 @@ void CariAsalKopi() {
         cout << "╠═══════════════════════════════════════════════════════════════╣\n";
 
         for (int i = 0; i < jumlahAsalUnik; ++i) {
-            cout << "║ " << setw(2) << (i + 1) << ". " << setw(57) << left << daftarAsalUnik[i].substr(0, 57) << "║\n";
+            cout << "║ " << setw(2) << (i + 1) << ". " << setw(57) << left << daftarAsalUnik[i].substr(0, 57) << " ║\n";
         }
         cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
     }
@@ -518,8 +541,9 @@ void CariAsalKopi() {
         string AsalLower = kopi.asalDaerahKopi;
         string searchLower = searchOrigin;
 
-        for (int k = 0; k < AsalLower.length(); ++k) AsalLower[k] = tolower(AsalLower[k]);
-        for (int k = 0; k < searchLower.length(); ++k) searchLower[k] = tolower(searchLower[k]);
+        transform(AsalLower.begin(), AsalLower.end(), AsalLower.begin(), ::tolower);
+        transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
+
 
         if (AsalLower.find(searchLower) != string::npos) {
             if (!found) {
@@ -540,13 +564,14 @@ void CariAsalKopi() {
     }
 
     if (!found) {
-        cout << "╠═══════════════════════════════════════════════════════════════╣\n";
-        cout << "║                                                               ║\n";
-        cout << "║              Tidak ditemukan kopi dari daerah                 ║\n";
-        cout << "║                      " << left << setw(30) << searchOrigin.substr(0,30) << "             ║\n";
-        cout << "║                                                               ║\n";
+        system("cls");
+        cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
+        cout << "║                                                                ║\n";
+        cout << "║      Tidak ditemukan kopi berdasarkan Asal yang kamu cari      ║\n";
+        cout << "║                                                                ║\n";
+        cout << "║                                                                ║\n";
     }
-    cout << "╚═══════════════════════════════════════════════════════════════╝\n";
+    cout << "╚════════════════════════════════════════════════════════════════╝\n";
     cout.fill(karakterPengisiLama);
     Enter();
 }
@@ -569,7 +594,7 @@ int ParseIdKopiDariString(const string& inputStr, bool& berhasil) {
 
     int idHasil = -1;
     try {
-        if ((str[0] == 'K' || str[0] == 'k') && str[1] == '-') {
+        if ((str[0] == 'K' || str[0] == 'k') && str.length() > 1 && str[1] == '-') {
             if (str.length() <= 2) {
                  cout << "Format K-XX tidak valid, nomor hilang." << endl;
                  return -1;
@@ -598,7 +623,6 @@ int ParseIdKopiDariString(const string& inputStr, bool& berhasil) {
     }
 }
 
-
 void MenuManajemenData() {
     int pilihanMenu = 0;
     string masukanIdString;
@@ -606,12 +630,16 @@ void MenuManajemenData() {
     int indeksKopi;
 
     do {
-            system("cls");
-            LihatSemuaKopi();
-            if (g_jumlahKopi == 0) {
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            LihatSemuaKopi(); 
+            if (g_jumlahKopi == 0 && pilihanMenu !=9) { 
                 cout << "Tidak ada data kopi untuk dikelola." << endl;
                 Enter();
-                return;
+                return; 
             }
 
             cout << "\n╔══════════════════════════════════════════════╗\n";
@@ -628,21 +656,32 @@ void MenuManajemenData() {
             cout << "║ 9. Kembali ke Menu Admin                     ║\n";
             cout << "╚══════════════════════════════════════════════╝\n";
 
-            pilihanMenu = AmbilInputInteger("Pilih menu: ");
+            if (!AmbilInputInteger("Pilih menu: ", pilihanMenu)) {
+                continue;
+            }
+            
+            if (pilihanMenu == 9) break; 
+
+            if (g_jumlahKopi == 0 && pilihanMenu >=1 && pilihanMenu <=8) {
+                cout << "Tidak ada data kopi untuk dikelola." << endl;
+                Enter();
+                continue;
+            }
+
 
             if (pilihanMenu >= 1 && pilihanMenu <= 8) {
-                cout << "Masukkan No. Kopi yang akan dikelola: ";
+                cout << "Masukkan No. Kopi yang akan dikelola (contoh: K-1 atau 1): ";
                 getline(cin, masukanIdString);
                 bool parseBerhasil;
                 idUntukDikelola = ParseIdKopiDariString(masukanIdString, parseBerhasil);
                 if (!parseBerhasil) {
-                    TanganiKesalahan("Input No. Kopi tidak valid.");
-                    continue;
+                    Enter(); 
+                    continue; 
                 }
                 indeksKopi = CariIndeksKopiDenganID(idUntukDikelola);
                 if (indeksKopi == -1) {
                     TanganiKesalahan("No. Kopi tidak ditemukan!");
-                    continue;
+                    continue; 
                 }
             }
 
@@ -650,7 +689,7 @@ void MenuManajemenData() {
             cout.fill(' ');
 
             switch(pilihanMenu) {
-                case 1: { // Update Nama Biji Kopi
+                case 1: {
                     string namaBaru;
                     do {
                         cout << "Masukkan nama/jenis biji kopi baru (maks. 30 karakter): ";
@@ -665,55 +704,55 @@ void MenuManajemenData() {
                     cout << "Nama/jenis biji kopi berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 2: { // Update Asal Biji Kopi
+                case 2: {
                     string asalBaru;
                      do {
-                        cout << "Masukkan asal biji kopi baru (maks. 35 karakter): "; // MODIFIED: Prompt
+                        cout << "Masukkan asal biji kopi baru (maks. 35 karakter): ";
                         getline(cin, asalBaru);
                         asalBaru = PotongSpasiTepi(asalBaru);
                         if (asalBaru.empty()) { TanganiKesalahan("Asal tidak boleh kosong!"); continue;}
-                        if (asalBaru.length() > 35) { TanganiKesalahan("Asal biji kopi tidak boleh lebih dari 35 karakter!"); continue; } // MODIFIED: Length check
+                        if (asalBaru.length() > 35) { TanganiKesalahan("Asal biji kopi tidak boleh lebih dari 35 karakter!"); continue; }
                         if (!ApakahStringAlphaSpasiHubung(asalBaru)) { TanganiKesalahan("Asal hanya boleh huruf, spasi, dan tanda hubung!");}
-                    } while (asalBaru.empty() || asalBaru.length() > 35 || !ApakahStringAlphaSpasiHubung(asalBaru)); // MODIFIED: Condition
+                    } while (asalBaru.empty() || asalBaru.length() > 35 || !ApakahStringAlphaSpasiHubung(asalBaru));
                     g_daftarKopi[indeksKopi].asalDaerahKopi = asalBaru;
                     SimpanSemuaDataKeJson();
                     cout << "Asal biji kopi berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 3: { // Update Stok
-                    double stokBaru;
+                case 3: {
+                    double stokBaru = 0.0;
                     string stokInputStr;
-                    while (true) {
-                        cout << "Masukkan stok baru (dalam ton, input maks. 10 karakter): "; // MODIFIED: Prompt
-                        getline(cin, stokInputStr);
+                    bool stokValid = false;
+                    while (!stokValid) { 
+                        cout << "Masukkan stok baru (dalam ton, input maks. 10 karakter): ";
+                        if (!getline(cin, stokInputStr)) {
+                            TanganiKesalahan("Gagal membaca input stok.");
+                            cin.clear(); BersihkanInput();
+                            continue; 
+                        }
                         stokInputStr = PotongSpasiTepi(stokInputStr);
 
-                        if (stokInputStr.length() > 10) { // MODIFIED: Length check
-                            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!");
-                            continue;
+                        if (stokInputStr.length() > 10) {
+                            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!"); continue;
                         }
-                        if (stokInputStr.empty()) { // MODIFIED: Empty check
-                            TanganiKesalahan("Input stok tidak boleh kosong!");
-                            continue;
+                        if (stokInputStr.empty()) {
+                            TanganiKesalahan("Input stok tidak boleh kosong!"); continue;
                         }
 
-                        try {
-                            size_t parsed_chars;
-                            stokBaru = stod(stokInputStr, &parsed_chars); // MODIFIED: String to double
-                             if (parsed_chars < stokInputStr.length()) { 
-                                 TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
-                                 continue;
-                             }
-
-                            if (stokBaru < 0) {
-                                TanganiKesalahan("Stok harus berupa angka >= 0!");
+                        stringstream ss_stok(stokInputStr);
+                        if (ss_stok >> stokBaru) {
+                            char sisa_stok;
+                            if (ss_stok >> sisa_stok) {
+                                TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
                             } else {
-                                break;
+                                if (stokBaru < 0) {
+                                    TanganiKesalahan("Stok harus berupa angka >= 0!");
+                                } else {
+                                    stokValid = true; 
+                                }
                             }
-                        } catch (const std::invalid_argument& ia) {
+                        } else {
                             TanganiKesalahan("Input stok harus berupa angka desimal!");
-                        } catch (const std::out_of_range& oor) {
-                            TanganiKesalahan("Input stok di luar jangkauan angka yang valid!");
                         }
                     }
                     g_daftarKopi[indeksKopi].stokTonKopi = stokBaru;
@@ -721,31 +760,31 @@ void MenuManajemenData() {
                     cout << "Stok berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 4: {
+                case 4: { 
                     double hargaBeliBaru;
-                     while (true) {
-                        hargaBeliBaru = AmbilInputDouble("Masukkan harga beli baru (Rp/ton): Rp ");
-                        if (hargaBeliBaru <= 0) {
+                    bool inputOk;
+                    do {
+                        inputOk = AmbilInputDouble("Masukkan harga beli baru (Rp/ton): Rp ", hargaBeliBaru);
+                        if (inputOk && hargaBeliBaru <= 0) {
                             TanganiKesalahan("Harga beli harus berupa angka positif!");
-                        } else {
-                            break;
+                            inputOk = false; 
                         }
-                    }
+                    } while (!inputOk);
                     g_daftarKopi[indeksKopi].hargaBeliPerTonKopi = hargaBeliBaru;
                     SimpanSemuaDataKeJson();
                     cout << "Harga beli berhasil diupdate!\n"; Enter();
                     break;
                 }
-                case 5: {
+                case 5: { 
                     double hargaJualBaru;
-                    while (true) {
-                        hargaJualBaru = AmbilInputDouble("Masukkan harga jual baru (Rp/kg): Rp ");
-                        if (hargaJualBaru <= 0) {
+                    bool inputOk;
+                    do {
+                        inputOk = AmbilInputDouble("Masukkan harga jual baru (Rp/kg): Rp ", hargaJualBaru);
+                        if (inputOk && hargaJualBaru <= 0) {
                             TanganiKesalahan("Harga jual harus berupa angka positif!");
-                        } else {
-                            break;
+                            inputOk = false; 
                         }
-                    }
+                    } while (!inputOk);
                     g_daftarKopi[indeksKopi].hargaJualPerKgKopi = hargaJualBaru;
                     SimpanSemuaDataKeJson();
                     cout << "Harga jual berhasil diupdate!\n"; Enter();
@@ -781,36 +820,32 @@ void MenuManajemenData() {
                     break;
                 }
                 case 8: {
-                    if (indeksKopi != -1 && indeksKopi < g_jumlahKopi) {
-                        cout << "Anda yakin ingin menghapus kopi '" << g_daftarKopi[indeksKopi].namaProdukKopi << "' (No.: " << g_daftarKopi[indeksKopi].idKopi << ")? (y/n): ";
-                        string konfirmasi;
-                        getline(cin, konfirmasi);
-                        if (konfirmasi == "y" || konfirmasi == "Y") {
-                            for (int i = indeksKopi; i < g_jumlahKopi - 1; ++i) {
-                                g_daftarKopi[i] = g_daftarKopi[i+1];
-                            }
-                            g_jumlahKopi--;
-                            SimpanSemuaDataKeJson();
-                            cout << "Data berhasil dihapus!\n";
-                        } else {
-                            cout << "Penghapusan dibatalkan.\n";
+                    cout << "Anda yakin ingin menghapus kopi '" << g_daftarKopi[indeksKopi].namaProdukKopi << "' (No.: K-" << g_daftarKopi[indeksKopi].idKopi << ")? (y/n): ";
+                    string konfirmasi;
+                    getline(cin, konfirmasi);
+                    if (konfirmasi == "y" || konfirmasi == "Y") {
+                        for (int i = indeksKopi; i < g_jumlahKopi - 1; ++i) {
+                            g_daftarKopi[i] = g_daftarKopi[i+1];
                         }
+                        g_jumlahKopi--;
+                        SimpanSemuaDataKeJson();
+                        cout << "Data berhasil dihapus!\n";
                     } else {
-                        cout << "Gagal menghapus, No. Kopi tidak valid atau data sudah tidak ada.\n";
+                        cout << "Penghapusan dibatalkan.\n";
                     }
                     Enter();
                     break;
                 }
-                case 9:
-                    cout.fill(karakterPengisiLama);
-                    return;
                 default:
-                    TanganiKesalahan("Pilihan tidak valid!");
+                    if (pilihanMenu != 9) { 
+                       TanganiKesalahan("Pilihan tidak valid!");
+                    }
                     break;
             }
             cout.fill(karakterPengisiLama);
     } while (pilihanMenu != 9);
 }
+
 
 void LaporanPenjualanl() {
     bool isAdmin = (g_penggunaSaatIni.peranAkun == "Admin");
@@ -852,9 +887,7 @@ void LaporanPenjualanl() {
     }
 
     if (isAdmin) {
-        for (map<string, int>::iterator it = petaTotalKopiTerjualKg.begin(); it != petaTotalKopiTerjualKg.end(); ++it) {
-            const string& namaJenisKopi = it->first;
-            int jumlahTerjualKg = it->second;
+        for (auto const& [namaJenisKopi, jumlahTerjualKg] : petaTotalKopiTerjualKg) {
             for (int j = 0; j < g_jumlahKopi; ++j) {
                 if (g_daftarKopi[j].namaProdukKopi == namaJenisKopi) {
                     totalModalKeseluruhan += (static_cast<double>(jumlahTerjualKg) / 1000.0) * g_daftarKopi[j].hargaBeliPerTonKopi;
@@ -868,9 +901,9 @@ void LaporanPenjualanl() {
         cout << "║            LAPORAN TRANSAKSI                  ║\n";
         cout << "╠═══════════════════════════════════════════════╣\n";
         cout << fixed << setprecision(2);
-        cout << "║ Total Penjualan : Rp " << left << setw(25) << totalPemasukanKeseluruhan << "║\n";
-        cout << "║ Total Modal     : Rp " << left << setw(25) << totalModalKeseluruhan << "║\n";
-        cout << "║ Laba Bersih     : Rp " << left << setw(25) << labaBersihKeseluruhan << "║\n";
+        cout << "║ Total Penjualan : " << left << setw(25) << FormatRupiah(totalPemasukanKeseluruhan) << "║\n";
+        cout << "║ Total Modal     : " << left << setw(25) << FormatRupiah(totalModalKeseluruhan) << "║\n";
+        cout << "║ Laba Bersih     : " << left << setw(25) << FormatRupiah(labaBersihKeseluruhan) << "║\n";
         cout << "╚═══════════════════════════════════════════════╝\n";
         cout << defaultfloat;
     }
@@ -879,10 +912,10 @@ void LaporanPenjualanl() {
     DataPenjualanPerJenis larikPenjualanTerurut[MAKS_KOPI];
     int jumlahDataPenjualanAktual = 0;
 
-    for (map<string, int>::iterator it = petaTotalKopiTerjualKg.begin(); it != petaTotalKopiTerjualKg.end(); ++it) {
+    for (auto const& [namaKopi, totalKg] : petaTotalKopiTerjualKg) {
         if (jumlahDataPenjualanAktual < MAKS_KOPI) {
-            larikPenjualanTerurut[jumlahDataPenjualanAktual].namaKopiTerjual = it->first;
-            larikPenjualanTerurut[jumlahDataPenjualanAktual].totalKgTerjual = it->second;
+            larikPenjualanTerurut[jumlahDataPenjualanAktual].namaKopiTerjual = namaKopi;
+            larikPenjualanTerurut[jumlahDataPenjualanAktual].totalKgTerjual = totalKg;
             jumlahDataPenjualanAktual++;
         } else {
             break;
@@ -1000,7 +1033,7 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
         BungkusTeksBaris(kopi.asalDaerahKopi, LEBAR_ASAL - 2, larikAsal, jumlahBarisAsal, MAKS_BARIS_TEKS_BUNGKUS);
 
         stringstream ss_stok_ton_val;
-        if (abs(kopi.stokTonKopi - static_cast<int>(kopi.stokTonKopi)) < 0.001 && kopi.stokTonKopi < 1e9) {
+        if (abs(kopi.stokTonKopi - static_cast<int>(kopi.stokTonKopi)) < 0.001 && kopi.stokTonKopi < 1e9) { // Avoid scientific for large whole numbers
             ss_stok_ton_val << static_cast<long long>(kopi.stokTonKopi);
         } else {
             ss_stok_ton_val << fixed << setprecision(2) << kopi.stokTonKopi;
@@ -1025,7 +1058,7 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
 
 
         for (size_t baris = 0; baris < maksBarisUntukItemIni; baris++) {
-            cout << pemisahVertikal << " " << setw(LEBAR_NO - 1) << left << (baris == 0 ? ss_no.str() : "")
+            cout << pemisahVertikal << " " << setw(LEBAR_NO - 1) << left << (baris == 0 ? "K-" + ss_no.str() : "")
                  << pemisahVertikal << " " << setw(LEBAR_NAMA - 1) << left << (baris < (size_t)jumlahBarisNama ? larikNama[baris] : "")
                  << pemisahVertikal << " " << setw(LEBAR_ASAL - 1) << left << (baris < (size_t)jumlahBarisAsal ? larikAsal[baris] : "")
                  << pemisahVertikal << " " << setw(LEBAR_STOK - 1) << left << (baris < (size_t)jumlahBarisStok ? larikStok[baris] : "")
@@ -1036,7 +1069,7 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
             }
             cout << pemisahVertikal << "\n";
         }
-        std::cout << defaultfloat;
+        std::cout << defaultfloat; // Reset float formatting
 
         if (i < jumlah - 1) {
             cout << pemisahBarisData << "\n";
@@ -1045,19 +1078,24 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
     cout << garisBawah << "\n";
     cout.fill(karakterPengisiLama);
 }
-
 void LihatSemuaKopi() {
         if (g_jumlahKopi == 0) {
             char karakterPengisiLama = cout.fill();
             cout.fill(' ');
             cout << "Belum ada data kopi tersimpan.\n";
             cout.fill(karakterPengisiLama);
+            Enter(); 
             return;
         }
         FormatTampilanKopiUniversal(g_daftarKopi, g_jumlahKopi);
 }
 
 void TambahDataKopiBaru() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
     LihatSemuaKopi();
 
     if (g_jumlahKopi >= MAKS_KOPI) {
@@ -1082,12 +1120,12 @@ void TambahDataKopiBaru() {
     }
 
     char original_fill = cout.fill();
-    cout << "No. Kopi Baru (otomatis): " << kopiBaru.idKopi << endl;
+    cout << "No. Kopi Baru (otomatis): K-" << kopiBaru.idKopi << endl;
     cout << std::setfill(' ');
 
     string tempNama;
     bool isDuplicate;
-    do { // Input Nama Kopi (maks 30 karakter) - Sudah sesuai
+    do {
         isDuplicate = false;
         cout << "Nama Biji Kopi (maks. 30 karakter, huruf, spasi, -): ";
         getline(cin, tempNama);
@@ -1098,14 +1136,13 @@ void TambahDataKopiBaru() {
         if (!ApakahStringAlphaSpasiHubung(tempNama)) { TanganiKesalahan("Nama hanya boleh huruf, spasi, dan tanda hubung!"); continue; }
 
         string tempNamaLower = tempNama;
-        for (int k=0; k < tempNamaLower.length(); ++k) tempNamaLower[k] = tolower(tempNamaLower[k]);
-
+        transform(tempNamaLower.begin(), tempNamaLower.end(), tempNamaLower.begin(), ::tolower);
 
         for (int i = 0; i < g_jumlahKopi; ++i) {
             string namaAda = g_daftarKopi[i].namaProdukKopi;
             namaAda = PotongSpasiTepi(namaAda);
             string namaAdaLower = namaAda;
-            for (int k=0; k < namaAdaLower.length(); ++k) namaAdaLower[k] = tolower(namaAdaLower[k]);
+            transform(namaAdaLower.begin(), namaAdaLower.end(), namaAdaLower.begin(), ::tolower);
 
             if (namaAdaLower == tempNamaLower) {
                 TanganiKesalahan("Kopi dengan nama '" + tempNama + "' sudah ada dalam database!");
@@ -1117,14 +1154,14 @@ void TambahDataKopiBaru() {
     kopiBaru.namaProdukKopi = tempNama;
 
     string tempAsal;
-    do { // Input Asal Kopi (maks 35 karakter)
-        cout << "Asal Daerah (maks. 35 karakter, huruf, spasi, -): "; // MODIFIED: Prompt
+    do {
+        cout << "Asal Daerah (maks. 35 karakter, huruf, spasi, -): ";
         getline(cin, tempAsal);
         tempAsal = PotongSpasiTepi(tempAsal);
         if (tempAsal.empty()) { TanganiKesalahan("Asal daerah tidak boleh kosong!"); continue; }
-        if (tempAsal.length() > 35) { TanganiKesalahan("Asal daerah terlalu panjang (maks 35 karakter)!"); continue; } // MODIFIED: Length check
+        if (tempAsal.length() > 35) { TanganiKesalahan("Asal daerah terlalu panjang (maks 35 karakter)!"); continue; }
         if (!ApakahStringAlphaSpasiHubung(tempAsal)) { TanganiKesalahan("Asal hanya boleh huruf, spasi, dan tanda hubung!"); }
-    } while (tempAsal.empty() || tempAsal.length() > 35 || !ApakahStringAlphaSpasiHubung(tempAsal)); // MODIFIED: Condition
+    } while (tempAsal.empty() || tempAsal.length() > 35 || !ApakahStringAlphaSpasiHubung(tempAsal));
     kopiBaru.asalDaerahKopi = tempAsal;
 
     string tempRasa;
@@ -1139,7 +1176,7 @@ void TambahDataKopiBaru() {
 
     string tempDeskripsi;
     do {
-        cout << "Deskripsi Produk Tambahan (maks. 350 karakter): ";
+        cout << "Deskripsi Produk Tambahan (maks. 350 karakter, opsional): ";
         getline(cin, tempDeskripsi);
         tempDeskripsi = PotongSpasiTepi(tempDeskripsi);
         if (tempDeskripsi.length() > 350) {
@@ -1148,57 +1185,64 @@ void TambahDataKopiBaru() {
     } while (tempDeskripsi.length() > 350);
     kopiBaru.deskripsiKopi = tempDeskripsi;
 
-    string stokInputStr; // MODIFIED: For Stok input
-    while(true) { // Input Stok (input string maks 10 karakter)
-        cout << "Stok (dalam Ton, angka > 0, input maks. 10 karakter): "; // MODIFIED: Prompt
-        getline(cin, stokInputStr);
+    string stokInputStr;
+    bool stokValid = false;
+    while(!stokValid) {
+        cout << "Stok (dalam Ton, angka > 0, input maks. 10 karakter): ";
+        if (!getline(cin, stokInputStr)) {
+             TanganiKesalahan("Gagal membaca input stok.");
+             cin.clear(); BersihkanInput(); continue;
+        }
         stokInputStr = PotongSpasiTepi(stokInputStr);
 
-        if (stokInputStr.length() > 10) { // MODIFIED: Length check
-            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!");
-            continue;
+        if (stokInputStr.length() > 10) {
+            TanganiKesalahan("Input stok terlalu panjang (maks 10 karakter)!"); continue;
         }
-        if (stokInputStr.empty()) { // MODIFIED: Empty check
-            TanganiKesalahan("Input stok tidak boleh kosong!");
-            continue;
+        if (stokInputStr.empty()) {
+            TanganiKesalahan("Input stok tidak boleh kosong!"); continue;
         }
-        
-        try {
-            size_t parsed_chars;
-            kopiBaru.stokTonKopi = stod(stokInputStr, &parsed_chars); // MODIFIED: String to double
-            if (parsed_chars < stokInputStr.length()) { 
-                 TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
-                 continue;
-            }
 
-            if (kopiBaru.stokTonKopi <= 0) {
-                TanganiKesalahan("Jumlah stok harus lebih dari 0 Ton!");
+        stringstream ss_stok_tambah(stokInputStr);
+        if (ss_stok_tambah >> kopiBaru.stokTonKopi) {
+            char sisa_stok_tambah;
+            if (ss_stok_tambah >> sisa_stok_tambah) {
+                 TanganiKesalahan("Format input stok tidak valid. Jangan ada karakter tambahan setelah angka.");
             } else {
-                break; 
+                 if (kopiBaru.stokTonKopi <= 0) {
+                    TanganiKesalahan("Jumlah stok harus lebih dari 0 Ton!");
+                } else {
+                    stokValid = true;
+                }
             }
-        } catch (const std::invalid_argument& ia) {
-            TanganiKesalahan("Input stok harus berupa angka desimal!");
-        } catch (const std::out_of_range& oor) {
-            TanganiKesalahan("Input stok di luar jangkauan angka yang valid!");
+        } else {
+             TanganiKesalahan("Input stok harus berupa angka desimal!");
         }
     }
 
-    while(true) {
-        kopiBaru.hargaBeliPerTonKopi = AmbilInputDouble("Harga Beli per Ton (Rp, angka > 0): ");
+    bool hargaBeliValid = false;
+    do {
+        if (!AmbilInputDouble("Harga Beli per Ton (Rp, angka > 0): ", kopiBaru.hargaBeliPerTonKopi)) {
+            continue; 
+        }
         if (kopiBaru.hargaBeliPerTonKopi <= 0) {
             TanganiKesalahan("Harga beli harus positif!");
         } else {
-            break;
+            hargaBeliValid = true;
         }
-    }
-    while(true) {
-        kopiBaru.hargaJualPerKgKopi = AmbilInputDouble("Harga Jual per Kg (Rp, angka > 0): ");
+    } while (!hargaBeliValid);
+
+    bool hargaJualValid = false;
+    do {
+        if (!AmbilInputDouble("Harga Jual per Kg (Rp, angka > 0): ", kopiBaru.hargaJualPerKgKopi)) {
+            continue; 
+        }
         if (kopiBaru.hargaJualPerKgKopi <= 0) {
             TanganiKesalahan("Harga jual harus positif!");
         } else {
-            break;
+            hargaJualValid = true;
         }
-    }
+    } while (!hargaJualValid);
+
 
     g_daftarKopi[g_jumlahKopi] = kopiBaru;
     g_jumlahKopi++;
@@ -1207,7 +1251,7 @@ void TambahDataKopiBaru() {
     cout << "\nKopi berhasil ditambahkan!\n";
     cout << "==========================\n";
     cout << "Detail Kopi:\n";
-    cout << "No.: " << kopiBaru.idKopi << endl;
+    cout << "No.: K-" << kopiBaru.idKopi << endl;
     cout << std::setfill(' ');
 
     cout << "Nama: " << kopiBaru.namaProdukKopi << endl;
@@ -1223,7 +1267,7 @@ void TambahDataKopiBaru() {
 
     cout << "Harga Beli/Ton: " << FormatRupiah(kopiBaru.hargaBeliPerTonKopi) << endl;
     cout << "Harga Jual/Kg: " << FormatRupiah(kopiBaru.hargaJualPerKgKopi) << endl;
-    cout << "Deskripsi: " << kopiBaru.deskripsiKopi << endl;
+    cout << "Deskripsi: " << (kopiBaru.deskripsiKopi.empty() ? "-" : kopiBaru.deskripsiKopi) << endl;
     cout << "==========================\n";
 
     cout.fill(original_fill);
@@ -1235,6 +1279,11 @@ void ProsesBeliKopi() {
             TanganiKesalahan("Tidak ada kopi yang tersedia untuk dibeli.");
             return;
         }
+        #ifdef _WIN32 
+            system("cls");
+        #else
+            system("clear");
+        #endif
         LihatSemuaKopi();
 
         string masukanIdString;
@@ -1245,17 +1294,17 @@ void ProsesBeliKopi() {
         char karakterPengisiLama = cout.fill();
         cout.fill(' ');
 
-        cout << "\nMasukkan No. Kopi yang ingin dibeli (contoh: 1, format K-01 juga diterima): ";
-        getline(cin, masukanIdString);
+        cout << "\nMasukkan No. Kopi yang ingin dibeli (contoh: K-1 atau 1): ";
+        getline(cin, masukanIdString); 
         bool parseBerhasil;
         idAkanDibeliParse = ParseIdKopiDariString(masukanIdString, parseBerhasil);
 
         if (!parseBerhasil) {
-            TanganiKesalahan("Input No. Kopi tidak valid.");
+            Enter();
             cout.fill(karakterPengisiLama);
             return;
         }
-        
+
         indeksKopiAkanDibeli = CariIndeksKopiDenganID(idAkanDibeliParse);
 
         if (indeksKopiAkanDibeli == -1) {
@@ -1279,18 +1328,23 @@ void ProsesBeliKopi() {
         }
         cout << endl;
 
-        while(true) {
-            jumlahKgAkanDibeli = AmbilInputInteger(
-                "Masukkan jumlah yang ingin dibeli (kg): ",
+        // Input quantity using AmbilInputInteger with a loop
+        bool qtyValid = false;
+        while(!qtyValid) {
+            if (!AmbilInputInteger(
+                "Masukkan jumlah yang ingin dibeli (kg): ", jumlahKgAkanDibeli,
                 "Jumlah pembelian harus berupa angka!",
                 "Format jumlah pembelian tidak valid. Jangan ada karakter tambahan setelah angka."
-            );
+            )) {
+                continue; // AmbilInputInteger handled error, re-prompt
+            }
             if (jumlahKgAkanDibeli <= 0) {
                 TanganiKesalahan("Jumlah pembelian harus berupa angka positif!");
             } else {
-                break;
+                qtyValid = true;
             }
         }
+
 
         double stokDibutuhkanTon = static_cast<double>(jumlahKgAkanDibeli) / 1000.0;
         if (kopiTerpilih.stokTonKopi < stokDibutuhkanTon - 0.00001) {
@@ -1318,7 +1372,7 @@ void ProsesBeliKopi() {
         SimpanSemuaDataKeJson();
 
         cout << "\nPembelian berhasil!\n";
-        cout << "Total harga: Rp " << static_cast<int>(hargaTotalPembelian) << endl;
+        cout << "Total harga: " << FormatRupiah(hargaTotalPembelian) << endl;
 
         cout.fill(karakterPengisiLama);
         Enter();
@@ -1356,15 +1410,15 @@ void TampilkanRiwayatPenjualan(bool adminBisaHapus = false) {
         return;
     }
 
-    cout << "\n╔════════════════════════════════════════════════════════════════════════════════════════════╗\n";
-    cout << "║                                  RIWAYAT PEMBELIAN " << (g_penggunaSaatIni.peranAkun == "Admin" ? "    " : "ANDA") << "                                    ║\n";
-    cout << "╠════╦══════════════════════╦═══════════════╦════════════════════╦═════════════╦═════════════╣\n";
+    cout << "\n╔═══════════════════════════════════════════════════════════════════════════════════════════════╗\n";
+    cout << "║                                  RIWAYAT PEMBELIAN " << (g_penggunaSaatIni.peranAkun == "Admin" ? "    " : "ANDA") << "                                       ║\n";
+    cout << "╠════╦══════════════════════╦═══════════════╦════════════════════╦════════════════╦═════════════╣\n";
     cout << "║ No ║" << left << setw(22) << " Waktu"
          << "║" << setw(15) << " Pembeli"
          << "║" << setw(20) << " Nama Kopi"
-         << "║" << right << setw(13) << "Harga (Rp)"
+         << "║" << setw(16) << "Harga"
          << "║" << setw(13) << "Jumlah (Kg)" << "║\n";
-    cout << "╠════╬══════════════════════╬═══════════════╬════════════════════╬═════════════╬═════════════╣\n";
+    cout << "╠════╬══════════════════════╬═══════════════╬════════════════════╬════════════════╬═════════════╣\n";
 
     int nomorUrut = 1;
     for (int i = 0; i < jumlahRiwayatRelevan; ++i) {
@@ -1373,29 +1427,32 @@ void TampilkanRiwayatPenjualan(bool adminBisaHapus = false) {
              << "║" << left << setw(22) << pembelian.waktuTransaksi
              << "║" << setw(15) << pembelian.namaPelangganTransaksi.substr(0,14)
              << "║" << setw(20) << pembelian.jenisKopiTransaksi.substr(0,19)
-             << "║" << right << setw(13) << static_cast<int>(pembelian.totalHargaTransaksi)
+             << "║" << setw(16) << FormatRupiah(pembelian.totalHargaTransaksi)
              << "║" << setw(12) << pembelian.jumlahKgTransaksi << " ║\n";
     }
-    cout << "╚════╩══════════════════════╩═══════════════╩════════════════════╩═════════════╩═════════════╝\n";
+    cout << "╚════╩══════════════════════╩═══════════════╩════════════════════╩════════════════╩═════════════╝\n";
 
     if (adminBisaHapus && g_penggunaSaatIni.peranAkun == "Admin" && jumlahRiwayatRelevan > 0) {
-        int nomorRiwayatUntukDihapus = 0;
-            nomorRiwayatUntukDihapus = AmbilInputInteger(
+        int nomorRiwayatUntukDihapus = 0; // Initialize
+        if (!AmbilInputInteger(
                 "\nMasukkan nomor riwayat yang ingin dihapus (sesuai urutan di atas, 0 untuk batal): ",
+                nomorRiwayatUntukDihapus,
                 "Input tidak valid! Masukkan angka.",
                 "Format nomor tidak valid. Jangan ada karakter tambahan setelah angka."
-            );
+            )) {
+        }
+
 
         if (nomorRiwayatUntukDihapus > 0 && nomorRiwayatUntukDihapus <= jumlahRiwayatRelevan) {
             int indeksGlobalUntukDihapus = -1;
-            const RiwayatPembelian& itemTarget = larikRiwayatRelevan[nomorRiwayatUntukDihapus - 1];
+            const RiwayatPembelian& itemTargetRef = larikRiwayatRelevan[nomorRiwayatUntukDihapus - 1];
 
             for(int k=0; k < g_jumlahRiwayatPembelian; ++k) {
-                if (g_riwayatPembelian[k].waktuTransaksi == itemTarget.waktuTransaksi &&
-                    g_riwayatPembelian[k].namaPelangganTransaksi == itemTarget.namaPelangganTransaksi &&
-                    g_riwayatPembelian[k].jenisKopiTransaksi == itemTarget.jenisKopiTransaksi &&
-                    abs(g_riwayatPembelian[k].totalHargaTransaksi - itemTarget.totalHargaTransaksi) < 0.001 &&
-                    g_riwayatPembelian[k].jumlahKgTransaksi == itemTarget.jumlahKgTransaksi) {
+                if (g_riwayatPembelian[k].waktuTransaksi == itemTargetRef.waktuTransaksi &&
+                    g_riwayatPembelian[k].namaPelangganTransaksi == itemTargetRef.namaPelangganTransaksi &&
+                    g_riwayatPembelian[k].jenisKopiTransaksi == itemTargetRef.jenisKopiTransaksi &&
+                    abs(g_riwayatPembelian[k].totalHargaTransaksi - itemTargetRef.totalHargaTransaksi) < 0.001 &&
+                    g_riwayatPembelian[k].jumlahKgTransaksi == itemTargetRef.jumlahKgTransaksi) {
                     indeksGlobalUntukDihapus = k;
                     break;
                 }
@@ -1421,7 +1478,7 @@ void TampilkanRiwayatPenjualan(bool adminBisaHapus = false) {
             } else {
                  cout << "Gagal menemukan riwayat yang cocok untuk dihapus (kesalahan internal atau data berubah).\n";
             }
-        } else if (nomorRiwayatUntukDihapus != 0) {
+        } else if (nomorRiwayatUntukDihapus != 0) { 
             cout << "Nomor riwayat tidak valid!\n";
         }
     }
@@ -1432,7 +1489,6 @@ void TampilkanRiwayatPenjualan(bool adminBisaHapus = false) {
 void TampilkanMenuPenggunaAktif() {
     if (g_penggunaSaatIni.peranAkun == "Admin") MenuAdmin();
     else MenuPelanggan();
-    cout << "Pilih menu: ";
 }
 
 void ProsesPilihanMenuAdmin(int pilihan) {
@@ -1443,14 +1499,9 @@ void ProsesPilihanMenuAdmin(int pilihan) {
         case 4: LaporanPenjualanl(); break;
         case 5: TampilkanRiwayatPenjualan(true); break;
         case 6: cout << "Log out Admin...\n"; Enter(); g_penggunaSaatIni = Pengguna(); break;
-        default: cout << "Menu tidak valid!\n"; Enter(); break;
-    }
-    if (pilihan !=6 ) {
-        #ifdef _WIN32
-            system("cls");
-        #else
-            system("clear");
-        #endif
+        default:
+            TanganiKesalahan("Pilihan menu Admin tidak valid!");
+            break;
     }
 }
 
@@ -1462,15 +1513,10 @@ void ProsesPilihanMenuPelanggan(int pilihan) {
         case 4: LaporanPenjualanl(); break;
         case 5: TampilkanRiwayatPenjualan(false); break;
         case 6: cout << "Log out Pelanggan...\n"; Enter(); g_penggunaSaatIni = Pengguna(); break;
-        default: cout << "Menu tidak valid!\n"; Enter(); break;
+        default:
+            TanganiKesalahan("Pilihan menu Pelanggan tidak valid!");
+            break;
     }
-     if (pilihan !=6 ) {
-        #ifdef _WIN32
-            system("cls");
-        #else
-            system("clear");
-        #endif
-     }
 }
 
 void DetailPenjualan(const DataPenjualanPerJenis larikPenjualanTerurut[], int jumlahData) {
@@ -1505,6 +1551,15 @@ void ProsesRegistrasi(const string& namaPengguna, const string& kataSandi) {
         TanganiKesalahan("Nama pengguna dan kata sandi tidak boleh kosong!");
         return;
     }
+    if (namaPengguna.length() < 3) {
+        TanganiKesalahan("Nama pengguna minimal 3 karakter.");
+        return;
+    }
+     if (kataSandi.length() < 3) {
+        TanganiKesalahan("Kata sandi minimal 3 karakter.");
+        return;
+    }
+
 
     for (int i = 0; i < g_jumlahPengguna; ++i) {
         if (g_daftarPengguna[i].namaAkun == namaPengguna) {
@@ -1545,7 +1600,7 @@ bool ProsesLoginPengguna(const string& namaPengguna, const string& kataSandi) {
 
 void MenuLogin() {
     #ifdef _WIN32
-        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleOutputCP(CP_UTF8); 
     #endif
     char karakterPengisiLama = cout.fill();
     cout.fill(' ');
@@ -1556,22 +1611,24 @@ void MenuLogin() {
     cout << "│ 2. Registrasi Akun               │\n";
     cout << "│ 3. Keluar                        │\n";
     cout << "└──────────────────────────────────┘\n";
-    cout << "Pilih menu: ";
     cout.fill(karakterPengisiLama);
 }
 
 int main() {
+    #ifdef _WIN32 
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+    #endif
     MuatSemuaDataDariJson();
 
     string namaPenggunaInput, kataSandiInput;
     int pilihanMenuUtama;
     bool sudahLogin = false;
 
-    std::cout.fill(' '); 
+    char karakterPengisiLamaDefault = cout.fill(); 
 
     while (true) {
-            char karakterPengisiLamaDefault = cout.fill();
-            cout.fill(' ');
+            cout.fill(' '); 
 
             #ifdef _WIN32
                 system("cls");
@@ -1581,14 +1638,14 @@ int main() {
 
             if (!sudahLogin) {
                 MenuLogin();
-                pilihanMenuUtama = AmbilInputInteger("");
+                if (!AmbilInputInteger("Pilih menu: ", pilihanMenuUtama)) {
+                    cout.fill(karakterPengisiLamaDefault); 
+                    continue;
+                }
+
                 switch(pilihanMenuUtama) {
                     case 1: {
-                        #ifdef _WIN32
-                            system("cls");
-                        #else
-                            system("clear");
-                        #endif
+                        system("cls");
                         cout << "\n______________________________________\n";
                         cout << "|                                    |\n";
                         cout << "|           LOGIN PENGGUNA           |\n";
@@ -1604,11 +1661,7 @@ int main() {
                         break;
                     }
                     case 2: {
-                        #ifdef _WIN32
-                            system("cls");
-                        #else
-                            system("clear");
-                        #endif
+                        system("cls");
                         cout << "\n______________________________________\n";
                         cout << "|                                    |\n";
                         cout << "|       Registrasi Akun Baru         |\n";
@@ -1623,29 +1676,31 @@ int main() {
                     }
                     case 3:
                         cout << "Terima kasih telah menggunakan sistem ini!\n";
-                        cout.fill(karakterPengisiLamaDefault);
+                        cout.fill(karakterPengisiLamaDefault); 
                         Enter();
                         SimpanSemuaDataKeJson();
                         return 0;
                     default:
-                        TanganiKesalahan("Menu tidak valid!");
+                        TanganiKesalahan("Pilihan menu utama tidak valid!");
                         break;
                 }
-            } else {
-                int pilihanMenuPengguna;
+            } else { 
                 TampilkanMenuPenggunaAktif();
-                pilihanMenuPengguna = AmbilInputInteger("");
+                int pilihanMenuPengguna;
+                if (!AmbilInputInteger("Pilih menu: ", pilihanMenuPengguna)) {
+                    cout.fill(karakterPengisiLamaDefault);
+                    continue; 
+                }
 
                 if (g_penggunaSaatIni.peranAkun == "Admin") {
                     ProsesPilihanMenuAdmin(pilihanMenuPengguna);
                     if (pilihanMenuPengguna == 6 && g_penggunaSaatIni.namaAkun.empty()) sudahLogin = false;
-                } else {
+                } else { 
                     ProsesPilihanMenuPelanggan(pilihanMenuPengguna);
                     if (pilihanMenuPengguna == 6 && g_penggunaSaatIni.namaAkun.empty()) sudahLogin = false;
                 }
             }
-            cout.fill(karakterPengisiLamaDefault);
+            cout.fill(karakterPengisiLamaDefault); 
     }
-    SimpanSemuaDataKeJson();
-    return 0;
+    return 0; 
 }
