@@ -22,7 +22,7 @@ using namespace std;
 const int MAKS_PENGGUNA = 50;
 const int MAKS_KOPI = 100;
 const int MAKS_RIWAYAT_PEMBELIAN = 500;
-const int MAKS_BARIS_TEKS_BUNGKUS = 10;
+const int MAKS_BARIS_TAMPILAN = 10;
 const int MAKS_ASAL_UNIK = MAKS_KOPI;
 
 struct Pengguna {
@@ -181,7 +181,7 @@ bool ApakahStringAlphaSpasiHubung(const string& str) {
     return true;
 }
 
-void BungkusTeksBaris(const string& teks, size_t lebarKolom, string* larikBarisKeluaran, int& jumlahBaris, int maksBaris) {
+void BungkusTeksPerBaris(const string& teks, size_t lebarKolom, string* larikBarisKeluaran, int& jumlahBaris, int maksBaris) {
     jumlahBaris = 0;
     if (teks.empty()) {
         if (jumlahBaris < maksBaris) {
@@ -901,9 +901,9 @@ void LaporanPenjualanl() {
         cout << "║            LAPORAN TRANSAKSI                  ║\n";
         cout << "╠═══════════════════════════════════════════════╣\n";
         cout << fixed << setprecision(2);
-        cout << "║ Total Penjualan : " << left << setw(25) << FormatRupiah(totalPemasukanKeseluruhan) << "║\n";
-        cout << "║ Total Modal     : " << left << setw(25) << FormatRupiah(totalModalKeseluruhan) << "║\n";
-        cout << "║ Laba Bersih     : " << left << setw(25) << FormatRupiah(labaBersihKeseluruhan) << "║\n";
+        cout << "║ Total Penjualan : " << left << setw(28) << FormatRupiah(totalPemasukanKeseluruhan) << "║\n";
+        cout << "║ Total Modal     : " << left << setw(28) << FormatRupiah(totalModalKeseluruhan) << "║\n";
+        cout << "║ Laba Bersih     : " << left << setw(28) << FormatRupiah(labaBersihKeseluruhan) << "║\n";
         cout << "╚═══════════════════════════════════════════════╝\n";
         cout << defaultfloat;
     }
@@ -954,15 +954,15 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
     const size_t LEBAR_HARGA_JUAL = 18;
     const size_t LEBAR_HARGA_BELI_KOLOM = 18;
 
-    size_t current_total_cell_widths = LEBAR_NO + LEBAR_NAMA + LEBAR_ASAL + LEBAR_STOK +
+    size_t total_lebar_sel = LEBAR_NO + LEBAR_NAMA + LEBAR_ASAL + LEBAR_STOK +
                                        LEBAR_DESKRIPSI + LEBAR_HARGA_JUAL;
-    int num_displayed_columns = 6;
+    int jumlah_kolom = 6;
 
     if (isAdmin) {
-        current_total_cell_widths += LEBAR_HARGA_BELI_KOLOM;
-        num_displayed_columns++;
+        total_lebar_sel += LEBAR_HARGA_BELI_KOLOM;
+        jumlah_kolom++;
     }
-    size_t LEBAR_TOTAL_TABEL = current_total_cell_widths + num_displayed_columns + 1;
+    size_t LEBAR_TOTAL_TABEL = total_lebar_sel + jumlah_kolom + 1;
 
 
     string garisAtas = "╔", garisTengahHeader = "╠", garisBawah = "╚", pemisahVertikal = "║";
@@ -1020,8 +1020,8 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
     pemisahBarisData += "╢";
 
 
-    string larikNama[MAKS_BARIS_TEKS_BUNGKUS], larikAsal[MAKS_BARIS_TEKS_BUNGKUS],
-           larikStok[MAKS_BARIS_TEKS_BUNGKUS], larikDeskripsi[MAKS_BARIS_TEKS_BUNGKUS];
+    string larikNama[MAKS_BARIS_TAMPILAN], larikAsal[MAKS_BARIS_TAMPILAN],
+           larikStok[MAKS_BARIS_TAMPILAN], larikDeskripsi[MAKS_BARIS_TAMPILAN];
     int jumlahBarisNama, jumlahBarisAsal, jumlahBarisStok, jumlahBarisDeskripsi;
 
     for (int i = 0; i < jumlah; i++) {
@@ -1029,19 +1029,19 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
 
         stringstream ss_no; ss_no << kopi.idKopi;
 
-        BungkusTeksBaris(kopi.namaProdukKopi, LEBAR_NAMA - 2, larikNama, jumlahBarisNama, MAKS_BARIS_TEKS_BUNGKUS);
-        BungkusTeksBaris(kopi.asalDaerahKopi, LEBAR_ASAL - 2, larikAsal, jumlahBarisAsal, MAKS_BARIS_TEKS_BUNGKUS);
+        BungkusTeksPerBaris(kopi.namaProdukKopi, LEBAR_NAMA - 2, larikNama, jumlahBarisNama, MAKS_BARIS_TAMPILAN);
+        BungkusTeksPerBaris(kopi.asalDaerahKopi, LEBAR_ASAL - 2, larikAsal, jumlahBarisAsal, MAKS_BARIS_TAMPILAN);
 
         stringstream ss_stok_ton_val;
-        if (abs(kopi.stokTonKopi - static_cast<int>(kopi.stokTonKopi)) < 0.001 && kopi.stokTonKopi < 1e9) { // Avoid scientific for large whole numbers
+        if (abs(kopi.stokTonKopi - static_cast<int>(kopi.stokTonKopi)) < 0.001 && kopi.stokTonKopi < 1e9) { 
             ss_stok_ton_val << static_cast<long long>(kopi.stokTonKopi);
         } else {
             ss_stok_ton_val << fixed << setprecision(2) << kopi.stokTonKopi;
         }
         string strStokTon = ss_stok_ton_val.str();
-        BungkusTeksBaris(strStokTon, LEBAR_STOK - 2, larikStok, jumlahBarisStok, MAKS_BARIS_TEKS_BUNGKUS);
+        BungkusTeksPerBaris(strStokTon, LEBAR_STOK - 2, larikStok, jumlahBarisStok, MAKS_BARIS_TAMPILAN);
 
-        BungkusTeksBaris(kopi.deskripsiKopi, LEBAR_DESKRIPSI - 2, larikDeskripsi, jumlahBarisDeskripsi, MAKS_BARIS_TEKS_BUNGKUS);
+        BungkusTeksPerBaris(kopi.deskripsiKopi, LEBAR_DESKRIPSI - 2, larikDeskripsi, jumlahBarisDeskripsi, MAKS_BARIS_TAMPILAN);
 
         string strHargaJual = FormatRupiah(kopi.hargaJualPerKgKopi);
 
@@ -1069,7 +1069,7 @@ void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah)
             }
             cout << pemisahVertikal << "\n";
         }
-        std::cout << defaultfloat; // Reset float formatting
+        std::cout << defaultfloat; 
 
         if (i < jumlah - 1) {
             cout << pemisahBarisData << "\n";
