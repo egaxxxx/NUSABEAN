@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
+#include <iomanip> 
 #include <ctime>
 #include <string>
 #include <map>
@@ -10,8 +10,8 @@
 #include <cmath>
 #include <cctype>
 #include <stdexcept>
-#include "json/json.h" 
-#include "src/jsoncpp.cpp" 
+#include "json/json.h"
+#include "src/jsoncpp.cpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -86,13 +86,7 @@ string FormatRupiah(double nilai) {
 
 void Enter() {
     cout << "Tekan Enter untuk melanjutkan...";
-    cout.flush();
-    cin.clear(); 
-    string dummy;
-    getline(cin, dummy);
-    if (cin.fail()) { 
-        cin.clear(); 
-    }
+    cin.get(); 
 }
 
 void TanganiKesalahan(const string& pesan) {
@@ -477,7 +471,7 @@ void MenuPelanggan() {
     cout << "╚═══════════════════════════════════════╝\n";
 }
 
-void LihatSemuaKopi();
+void LihatDataKopi();
 void DetailPenjualan(const DataPenjualanPerJenis larikPenjualanTerurut[], int jumlahData);
 void LaporanPenjualanl();
 
@@ -509,14 +503,14 @@ void CariAsalKopi() {
         cout << "│                                                               │\n";
         cout << "└───────────────────────────────────────────────────────────────┘\n\n";
     } else {
-        cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-        cout << "║           Daftar Daerah Asal Kopi yang Tersedia               ║\n";
-        cout << "╠═══════════════════════════════════════════════════════════════╣\n";
+        cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
+        cout << "║           Daftar Daerah Asal Kopi yang Tersedia                ║\n";
+        cout << "╠════════════════════════════════════════════════════════════════╣\n";
 
         for (int i = 0; i < jumlahAsalUnik; ++i) {
-            cout << "║ " << setw(2) << (i + 1) << ". " << setw(57) << left << daftarAsalUnik[i].substr(0, 57) << " ║\n";
+            cout << "║ " << setw(2) << (i + 1) << ". " << setw(58) << left << daftarAsalUnik[i].substr(0, 57) << " ║\n";
         }
-        cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+        cout << "╚════════════════════════════════════════════════════════════════╝\n\n";
     }
     cout.fill(karakterPengisiLama);
 
@@ -531,9 +525,9 @@ void CariAsalKopi() {
     }
     searchOrigin = PotongSpasiTepi(searchOrigin);
 
-    cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-    cout << "║           Hasil Pencarian Kopi dari " << left << setw(20) << searchOrigin.substr(0,20) << "      ║\n";
-    cout << "╠═══════════════════════════════════════════════════════════════╣\n";
+    cout << "\n╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗\n";
+    cout << "║                                                     Hasil Pencarian Kopi dari " << left << setw(46) << searchOrigin.substr(0,20) << "      ║\n";
+    cout << "╠═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣\n";
 
     bool found = false;
     for (int i = 0; i < g_jumlahKopi; ++i) {
@@ -548,17 +542,18 @@ void CariAsalKopi() {
         if (AsalLower.find(searchLower) != string::npos) {
             if (!found) {
                 cout << "║" << setw(5) << " ID"
-                     << "║" << setw(15) << " Nama"
-                     << "║" << setw(15) << " Asal"
-                     << "║" << setw(12) << " Harga/Kg"
-                     << "║" << setw(12) << " Rasa" << "║\n";
-                cout << "╠═══════════════════════════════════════════════════════════════╣\n";
+                     << "║" << setw(32) << " Nama"
+                     << "║" << setw(36) << " Asal"
+                     << "║" << setw(20) << " Harga/Kg"
+                     << "║" << setw(34) << " Rasa" << "║\n";
+                cout << "╠═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣\n";
             }
             cout << "║" << setw(5) << ("K-" + to_string(kopi.idKopi))
-                 << "║" << setw(15) << kopi.namaProdukKopi.substr(0,14)
-                 << "║" << setw(15) << kopi.asalDaerahKopi.substr(0,14)
-                 << "║" << setw(12) << FormatRupiah(kopi.hargaJualPerKgKopi).substr(0,11)
-                 << "║" << setw(12) << kopi.rasaKopi.substr(0,11) << "║\n";
+                 << "║" << setw(32) << kopi.namaProdukKopi.substr(0,14)
+                 << "║" << setw(36) << kopi.asalDaerahKopi.substr(0,14)
+                 << "║" << setw(20) << FormatRupiah(kopi.hargaJualPerKgKopi).substr(0,11)
+                 << "║" << setw(34) << kopi.rasaKopi.substr(0,11) << "║\n";
+            cout << "╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝\n";     
             found = true;
         }
     }
@@ -570,8 +565,9 @@ void CariAsalKopi() {
         cout << "║      Tidak ditemukan kopi berdasarkan Asal yang kamu cari      ║\n";
         cout << "║                                                                ║\n";
         cout << "║                                                                ║\n";
+        cout << "╚════════════════════════════════════════════════════════════════╝\n\n";
     }
-    cout << "╚════════════════════════════════════════════════════════════════╝\n";
+    
     cout.fill(karakterPengisiLama);
     Enter();
 }
@@ -635,7 +631,7 @@ void MenuManajemenData() {
             #else
                 system("clear");
             #endif
-            LihatSemuaKopi(); 
+            LihatDataKopi(); 
             if (g_jumlahKopi == 0 && pilihanMenu !=9) { 
                 cout << "Tidak ada data kopi untuk dikelola." << endl;
                 Enter();
@@ -941,144 +937,168 @@ void LaporanPenjualanl() {
 }
 
 void FormatTampilanKopiUniversal(const Kopi daftarKopiDitampilkan[], int jumlah) {
-    char karakterPengisiLama = cout.fill();
-    cout.fill(' ');
+    char karakterPengisiLama = cout.fill();                       
+    cout.fill(' ');                                               
 
-    bool isAdmin = (g_penggunaSaatIni.peranAkun == "Admin");
+    bool isAdmin = (g_penggunaSaatIni.peranAkun == "Admin");      
 
-    const size_t LEBAR_NO = 5;
-    const size_t LEBAR_NAMA = 25;
-    const size_t LEBAR_ASAL = 20;
-    const size_t LEBAR_STOK = 12;
-    const size_t LEBAR_DESKRIPSI = 45;
-    const size_t LEBAR_HARGA_JUAL = 18;
-    const size_t LEBAR_HARGA_BELI_KOLOM = 18;
+    // Definisi konstanta untuk lebar setiap kolom dalam tabel
+    const size_t LEBAR_NO = 5;                                    
+    const size_t LEBAR_NAMA = 25;                                 
+    const size_t LEBAR_ASAL = 20;                                 
+    const size_t LEBAR_STOK = 12;                                 
+    const size_t LEBAR_RASA = 30;                                
+    const size_t LEBAR_DESKRIPSI = 45;                            
+    const size_t LEBAR_HARGA_JUAL = 18;                           
+    const size_t LEBAR_HARGA_BELI_KOLOM = 18;                     
 
+    // Hitung total lebar semua sel konten
     size_t total_lebar_sel = LEBAR_NO + LEBAR_NAMA + LEBAR_ASAL + LEBAR_STOK +
-                                       LEBAR_DESKRIPSI + LEBAR_HARGA_JUAL;
-    int jumlah_kolom = 6;
+                                       LEBAR_RASA + LEBAR_DESKRIPSI + LEBAR_HARGA_JUAL; 
+    int jumlah_kolom = 7;                                         
 
-    if (isAdmin) {
-        total_lebar_sel += LEBAR_HARGA_BELI_KOLOM;
-        jumlah_kolom++;
+    if (isAdmin) {                                                
+        total_lebar_sel += LEBAR_HARGA_BELI_KOLOM;                
+        jumlah_kolom++;                                           
     }
-    size_t LEBAR_TOTAL_TABEL = total_lebar_sel + jumlah_kolom + 1;
+    // Hitung lebar total tabel, termasuk garis pemisah antar kolom dan border terluar
+    size_t LEBAR_TOTAL_TABEL = total_lebar_sel + jumlah_kolom + 1; 
 
-
+    // String untuk karakter pembentuk garis tabel
     string garisAtas = "╔", garisTengahHeader = "╠", garisBawah = "╚", pemisahVertikal = "║";
-    for (size_t i = 0; i < LEBAR_TOTAL_TABEL - 2; i++) {
+    for (size_t i = 0; i < LEBAR_TOTAL_TABEL - 2; i++) {          
         garisAtas += "═"; garisTengahHeader += "═"; garisBawah += "═";
     }
-    garisAtas += "╗"; garisTengahHeader += "╣"; garisBawah += "╝";
+    garisAtas += "╗"; garisTengahHeader += "╣"; garisBawah += "╝"; 
 
-    cout << "\n" << garisAtas << "\n";
-    string judulTabel = "DAFTAR KOPI TERSEDIA";
-    size_t lebarKolomJudul = LEBAR_TOTAL_TABEL - 2;
+    cout << "\n" << garisAtas << "\n";                            
+    string judulTabel = "DAFTAR KOPI TERSEDIA";                   
+    size_t lebarKolomJudul = LEBAR_TOTAL_TABEL - 2;               
     string judulUntukTampilan = judulTabel;
-    if (judulTabel.length() > lebarKolomJudul) {
-        judulUntukTampilan = judulTabel.substr(0, lebarKolomJudul);
+    if (judulTabel.length() > lebarKolomJudul) {                  
+        judulUntukTampilan = judulTabel.substr(0, lebarKolomJudul); 
     }
+    // Hitung padding untuk menempatkan judul di tengah
     size_t totalPadding = lebarKolomJudul - judulUntukTampilan.length();
     size_t paddingKiri = totalPadding / 2;
     size_t paddingKanan = totalPadding - paddingKiri;
 
+    // Cetak baris judul tabel
     cout << pemisahVertikal
          << string(paddingKiri, ' ') << judulUntukTampilan << string(paddingKanan, ' ')
          << pemisahVertikal << "\n";
-    cout << garisTengahHeader << "\n";
+    cout << garisTengahHeader << "\n";                            
 
-    if (jumlah == 0) {
+    if (jumlah == 0) {                                            
+        // Cetak pesan bahwa tidak ada data
         cout << pemisahVertikal << left << setw(LEBAR_TOTAL_TABEL - 2) << " Belum ada data kopi yang tersedia." << pemisahVertikal << "\n";
-        cout << garisBawah << "\n";
-        cout.fill(karakterPengisiLama);
-        return;
+        cout << garisBawah << "\n";                               
+        cout.fill(karakterPengisiLama);                           
+        return;                                                   
     }
 
+    // Cetak header untuk setiap kolom
     cout << pemisahVertikal << " " << setw(LEBAR_NO -1) << left << "No."
          << pemisahVertikal << " " << setw(LEBAR_NAMA -1) << left << "Nama Kopi"
          << pemisahVertikal << " " << setw(LEBAR_ASAL -1) << left << "Asal"
          << pemisahVertikal << " " << setw(LEBAR_STOK -1) << left << "Stok(Ton)"
+         << pemisahVertikal << " " << setw(LEBAR_RASA -1) << left << "Rasa" 
          << pemisahVertikal << " " << setw(LEBAR_DESKRIPSI -1) << left << "Deskripsi"
          << pemisahVertikal << " " << setw(LEBAR_HARGA_JUAL-1) << left << "Harga Jual/Kg";
-    if (isAdmin) {
+    if (isAdmin) {                                              
         cout << pemisahVertikal << " " << setw(LEBAR_HARGA_BELI_KOLOM-1) << left << "Harga Beli/Ton";
     }
     cout << pemisahVertikal << "\n";
-    cout << garisTengahHeader << "\n";
+    cout << garisTengahHeader << "\n";                            
 
+    // String untuk garis pemisah antar baris data
     string pemisahBarisData = "╟";
     for (size_t i = 0; i < LEBAR_NO; i++) pemisahBarisData += "─"; pemisahBarisData += "╫";
     for (size_t i = 0; i < LEBAR_NAMA; i++) pemisahBarisData += "─"; pemisahBarisData += "╫";
     for (size_t i = 0; i < LEBAR_ASAL; i++) pemisahBarisData += "─"; pemisahBarisData += "╫";
     for (size_t i = 0; i < LEBAR_STOK; i++) pemisahBarisData += "─"; pemisahBarisData += "╫";
+    for (size_t i = 0; i < LEBAR_RASA; i++) pemisahBarisData += "─"; pemisahBarisData += "╫"; 
     for (size_t i = 0; i < LEBAR_DESKRIPSI; i++) pemisahBarisData += "─"; pemisahBarisData += "╫";
     for (size_t i = 0; i < LEBAR_HARGA_JUAL; i++) pemisahBarisData += "─";
-    if (isAdmin) {
+    if (isAdmin) {                                                
         pemisahBarisData += "╫";
         for (size_t i = 0; i < LEBAR_HARGA_BELI_KOLOM; i++) pemisahBarisData += "─";
     }
     pemisahBarisData += "╢";
 
-
+    // Array untuk menyimpan hasil pembungkusan teks per kolom
     string larikNama[MAKS_BARIS_TAMPILAN], larikAsal[MAKS_BARIS_TAMPILAN],
-           larikStok[MAKS_BARIS_TAMPILAN], larikDeskripsi[MAKS_BARIS_TAMPILAN];
-    int jumlahBarisNama, jumlahBarisAsal, jumlahBarisStok, jumlahBarisDeskripsi;
+           larikStok[MAKS_BARIS_TAMPILAN], larikRasa[MAKS_BARIS_TAMPILAN], 
+           larikDeskripsi[MAKS_BARIS_TAMPILAN];
+    int jumlahBarisNama, jumlahBarisAsal, jumlahBarisStok, jumlahBarisRasa, 
+        jumlahBarisDeskripsi; 
+    
+    const string empty_cell_placeholder = " ";                    
 
-    for (int i = 0; i < jumlah; i++) {
-        const Kopi& kopi = daftarKopiDitampilkan[i];
+    for (int i = 0; i < jumlah; i++) {                            
+        const Kopi& kopi = daftarKopiDitampilkan[i];              
+        stringstream ss_no; ss_no << kopi.idKopi;                 
 
-        stringstream ss_no; ss_no << kopi.idKopi;
+        BungkusTeksPerBaris(kopi.namaProdukKopi, LEBAR_NAMA - 1, larikNama, jumlahBarisNama, MAKS_BARIS_TAMPILAN);
+        BungkusTeksPerBaris(kopi.asalDaerahKopi, LEBAR_ASAL - 1, larikAsal, jumlahBarisAsal, MAKS_BARIS_TAMPILAN);
 
-        BungkusTeksPerBaris(kopi.namaProdukKopi, LEBAR_NAMA - 2, larikNama, jumlahBarisNama, MAKS_BARIS_TAMPILAN);
-        BungkusTeksPerBaris(kopi.asalDaerahKopi, LEBAR_ASAL - 2, larikAsal, jumlahBarisAsal, MAKS_BARIS_TAMPILAN);
-
-        stringstream ss_stok_ton_val;
+        stringstream ss_stok_ton_val;                             
         if (abs(kopi.stokTonKopi - static_cast<int>(kopi.stokTonKopi)) < 0.001 && kopi.stokTonKopi < 1e9) { 
-            ss_stok_ton_val << static_cast<long long>(kopi.stokTonKopi);
+            ss_stok_ton_val << static_cast<long long>(kopi.stokTonKopi); 
         } else {
-            ss_stok_ton_val << fixed << setprecision(2) << kopi.stokTonKopi;
+            ss_stok_ton_val << fixed << setprecision(2) << kopi.stokTonKopi; 
         }
-        string strStokTon = ss_stok_ton_val.str();
-        BungkusTeksPerBaris(strStokTon, LEBAR_STOK - 2, larikStok, jumlahBarisStok, MAKS_BARIS_TAMPILAN);
+        string strStokTon = ss_stok_ton_val.str();                
+        BungkusTeksPerBaris(strStokTon, LEBAR_STOK - 1, larikStok, jumlahBarisStok, MAKS_BARIS_TAMPILAN);
+        
+        BungkusTeksPerBaris(kopi.rasaKopi, LEBAR_RASA - 1, larikRasa, jumlahBarisRasa, MAKS_BARIS_TAMPILAN); 
+        BungkusTeksPerBaris(kopi.deskripsiKopi, LEBAR_DESKRIPSI - 1, larikDeskripsi, jumlahBarisDeskripsi, MAKS_BARIS_TAMPILAN);
 
-        BungkusTeksPerBaris(kopi.deskripsiKopi, LEBAR_DESKRIPSI - 2, larikDeskripsi, jumlahBarisDeskripsi, MAKS_BARIS_TAMPILAN);
-
-        string strHargaJual = FormatRupiah(kopi.hargaJualPerKgKopi);
-
+        string strHargaJual = FormatRupiah(kopi.hargaJualPerKgKopi); 
         string strHargaBeli = "";
         if (isAdmin) {
-            strHargaBeli = FormatRupiah(kopi.hargaBeliPerTonKopi);
+            strHargaBeli = FormatRupiah(kopi.hargaBeliPerTonKopi); 
         }
 
-        size_t maksBarisUntukItemIni = 1;
-        if ((size_t)jumlahBarisNama > maksBarisUntukItemIni) maksBarisUntukItemIni = jumlahBarisNama;
-        if ((size_t)jumlahBarisAsal > maksBarisUntukItemIni) maksBarisUntukItemIni = jumlahBarisAsal;
-        if ((size_t)jumlahBarisStok > maksBarisUntukItemIni) maksBarisUntukItemIni = jumlahBarisStok;
-        if ((size_t)jumlahBarisDeskripsi > maksBarisUntukItemIni) maksBarisUntukItemIni = jumlahBarisDeskripsi;
-
+        size_t maksBarisUntukItemIni = 1;                         
+        maksBarisUntukItemIni = std::max(maksBarisUntukItemIni, (size_t)jumlahBarisNama);
+        maksBarisUntukItemIni = std::max(maksBarisUntukItemIni, (size_t)jumlahBarisAsal);
+        maksBarisUntukItemIni = std::max(maksBarisUntukItemIni, (size_t)jumlahBarisStok);
+        maksBarisUntukItemIni = std::max(maksBarisUntukItemIni, (size_t)jumlahBarisRasa); 
+        maksBarisUntukItemIni = std::max(maksBarisUntukItemIni, (size_t)jumlahBarisDeskripsi);
 
         for (size_t baris = 0; baris < maksBarisUntukItemIni; baris++) {
-            cout << pemisahVertikal << " " << setw(LEBAR_NO - 1) << left << (baris == 0 ? "K-" + ss_no.str() : "")
-                 << pemisahVertikal << " " << setw(LEBAR_NAMA - 1) << left << (baris < (size_t)jumlahBarisNama ? larikNama[baris] : "")
-                 << pemisahVertikal << " " << setw(LEBAR_ASAL - 1) << left << (baris < (size_t)jumlahBarisAsal ? larikAsal[baris] : "")
-                 << pemisahVertikal << " " << setw(LEBAR_STOK - 1) << left << (baris < (size_t)jumlahBarisStok ? larikStok[baris] : "")
-                 << pemisahVertikal << " " << setw(LEBAR_DESKRIPSI - 1) << left << (baris < (size_t)jumlahBarisDeskripsi ? larikDeskripsi[baris] : "")
-                 << pemisahVertikal << " " << setw(LEBAR_HARGA_JUAL - 1) << left << (baris == 0 ? strHargaJual : "");
-            if (isAdmin) {
-                cout << pemisahVertikal << " " << setw(LEBAR_HARGA_BELI_KOLOM - 1) << left << (baris == 0 ? strHargaBeli : "");
+            cout << pemisahVertikal << " " << setw(LEBAR_NO - 1) << left 
+                 << (baris == 0 ? "K-" + ss_no.str() : empty_cell_placeholder); 
+            cout << pemisahVertikal << " " << setw(LEBAR_NAMA - 1) << left 
+                 << (baris < (size_t)jumlahBarisNama ? (larikNama[baris].empty() ? empty_cell_placeholder : larikNama[baris]) : empty_cell_placeholder);
+            cout << pemisahVertikal << " " << setw(LEBAR_ASAL - 1) << left 
+                 << (baris < (size_t)jumlahBarisAsal ? (larikAsal[baris].empty() ? empty_cell_placeholder : larikAsal[baris]) : empty_cell_placeholder);
+            cout << pemisahVertikal << " " << setw(LEBAR_STOK - 1) << left 
+                 << (baris < (size_t)jumlahBarisStok ? (larikStok[baris].empty() ? empty_cell_placeholder : larikStok[baris]) : empty_cell_placeholder);
+            cout << pemisahVertikal << " " << setw(LEBAR_RASA - 1) << left 
+                 << (baris < (size_t)jumlahBarisRasa ? (larikRasa[baris].empty() ? empty_cell_placeholder : larikRasa[baris]) : empty_cell_placeholder);
+            cout << pemisahVertikal << " " << setw(LEBAR_DESKRIPSI - 1) << left 
+                 << (baris < (size_t)jumlahBarisDeskripsi ? (larikDeskripsi[baris].empty() ? empty_cell_placeholder : larikDeskripsi[baris]) : empty_cell_placeholder);
+            cout << pemisahVertikal << " " << setw(LEBAR_HARGA_JUAL - 1) << left 
+                 << (baris == 0 ? strHargaJual : empty_cell_placeholder); 
+            
+            if (isAdmin) { 
+                cout << pemisahVertikal << " " << setw(LEBAR_HARGA_BELI_KOLOM - 1) << left 
+                     << (baris == 0 ? strHargaBeli : empty_cell_placeholder); 
             }
-            cout << pemisahVertikal << "\n";
+            cout << pemisahVertikal << "\n";                           
         }
-        std::cout << defaultfloat; 
+        cout << defaultfloat;                                       
 
-        if (i < jumlah - 1) {
-            cout << pemisahBarisData << "\n";
+        if (i < jumlah - 1) {                                       
+            cout << pemisahBarisData << "\n";                       
         }
     }
-    cout << garisBawah << "\n";
-    cout.fill(karakterPengisiLama);
+    cout << garisBawah << "\n";                                     
+    cout.fill(karakterPengisiLama);                                 
 }
-void LihatSemuaKopi() {
+void LihatDataKopi() {
         if (g_jumlahKopi == 0) {
             char karakterPengisiLama = cout.fill();
             cout.fill(' ');
@@ -1096,7 +1116,7 @@ void TambahDataKopiBaru() {
     #else
         system("clear");
     #endif
-    LihatSemuaKopi();
+    LihatDataKopi();
 
     if (g_jumlahKopi >= MAKS_KOPI) {
         cout << "Kapasitas data kopi penuh. Tidak dapat menambah data baru.\n";
@@ -1284,7 +1304,7 @@ void ProsesBeliKopi() {
         #else
             system("clear");
         #endif
-        LihatSemuaKopi();
+        LihatDataKopi();
 
         string masukanIdString;
         int idAkanDibeliParse;
@@ -1328,7 +1348,6 @@ void ProsesBeliKopi() {
         }
         cout << endl;
 
-        // Input quantity using AmbilInputInteger with a loop
         bool qtyValid = false;
         while(!qtyValid) {
             if (!AmbilInputInteger(
@@ -1336,7 +1355,7 @@ void ProsesBeliKopi() {
                 "Jumlah pembelian harus berupa angka!",
                 "Format jumlah pembelian tidak valid. Jangan ada karakter tambahan setelah angka."
             )) {
-                continue; // AmbilInputInteger handled error, re-prompt
+                continue; 
             }
             if (jumlahKgAkanDibeli <= 0) {
                 TanganiKesalahan("Jumlah pembelian harus berupa angka positif!");
@@ -1433,7 +1452,7 @@ void TampilkanRiwayatPenjualan(bool adminBisaHapus = false) {
     cout << "╚════╩══════════════════════╩═══════════════╩════════════════════╩════════════════╩═════════════╝\n";
 
     if (adminBisaHapus && g_penggunaSaatIni.peranAkun == "Admin" && jumlahRiwayatRelevan > 0) {
-        int nomorRiwayatUntukDihapus = 0; // Initialize
+        int nomorRiwayatUntukDihapus = 0; 
         if (!AmbilInputInteger(
                 "\nMasukkan nomor riwayat yang ingin dihapus (sesuai urutan di atas, 0 untuk batal): ",
                 nomorRiwayatUntukDihapus,
@@ -1509,7 +1528,7 @@ void ProsesPilihanMenuPelanggan(int pilihan) {
     switch(pilihan) {
         case 1: ProsesBeliKopi(); break;
         case 2: CariAsalKopi(); break;
-        case 3: LihatSemuaKopi(); Enter(); break;
+        case 3: LihatDataKopi(); Enter(); break;
         case 4: LaporanPenjualanl(); break;
         case 5: TampilkanRiwayatPenjualan(false); break;
         case 6: cout << "Log out Pelanggan...\n"; Enter(); g_penggunaSaatIni = Pengguna(); break;

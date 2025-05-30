@@ -2,14 +2,164 @@
     "daftarKopi" : 
     [
         {
-            "asal" : "dgjebvfcjvfjgf",
-            "deskripsi" : "jdvbchjvdcjhdcjgdvcjdcgdvcdcvdjgcvdjgvcdgcvdvcdjgcv",
+            "asal" : "Aceh Tengah",
+            "deskripsi" : "Arabika dengan aroma floral, body medium, dan keasaman seimbang.",
             "hargaBeliTon" : 2.0,
             "hargaJualKg" : 2.0,
             "id" : 1,
-            "nama" : "hcgcvece",
-            "rasa" : "vcdsgvcjdgvcjhdvcjgdsvcdgjvcdsgjvcdvgjd",
+            "nama" : "Kopi Gayo",
+            "rasa" : "Floral, medium body, balanced acidity",
             "stok" : 19.0
+        },
+        {
+            "asal" : "Sumatra Utara",
+            "deskripsi" : "Arabika dengan rasa kompleks, aroma herbal, dan sentuhan cokelat serta rempah.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 2,
+            "nama" : "Kopi Mandailing",
+            "rasa" : "Complex, herbal, chocolate and spice",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Dairi, Sumatra Utara",
+            "deskripsi" : "Dikenal dengan kekentalan tinggi dan rasa pahit yang memikat.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 3,
+            "nama" : "Kopi Sidikalang",
+            "rasa" : "Strong, bitter",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Lintong Nihuta, Sumatra Utara",
+            "deskripsi" : "Arabika dengan rasa earthy dan keasaman medium.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 4,
+            "nama" : "Kopi Lintong",
+            "rasa" : "Earthy, medium acidity",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Lampung",
+            "deskripsi" : "Memiliki rasa kuat dan tekstur halus, cocok untuk pecinta kopi robusta.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 5,
+            "nama" : "Kopi Robusta Lampung",
+            "rasa" : "Strong, smooth texture",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Riau",
+            "deskripsi" : "Varietas unik dengan aroma woody dan rasa buah khas, populer di Malaysia dan Singapura.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 6,
+            "nama" : "Kopi Liberika Rangsang Meranti",
+            "rasa" : "Woody, fruity",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Jawa Barat",
+            "deskripsi" : "Arabika klasik dengan rasa seimbang dan aroma rempah.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 7,
+            "nama" : "Kopi Java Preanger",
+            "rasa" : "Balanced with spice aroma",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Bondowoso, Jawa Timur",
+            "deskripsi" : "Memiliki rasa sedikit pedas dengan aroma bunga hutan, tingkat asam sedang.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 8,
+            "nama" : "Kopi Java Ijen Raung",
+            "rasa" : "Spicy with forest flower aroma",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Jawa Tengah",
+            "deskripsi" : "Dikenal dengan aroma tembakau dan rasa pahit pekat, diekspor ke berbagai negara.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 9,
+            "nama" : "Kopi Robusta Temanggung",
+            "rasa" : "Tobacco, strong bitterness",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "jember",
+            "deskripsi" : "Hasil persilangan Arabika dan Robusta, dengan kombinasi rasa khas dan body tebal.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 10,
+            "nama" : "Kopi Arabusta",
+            "rasa" : "Jember",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Bali",
+            "deskripsi" : "Arabika dengan rasa fruity dan aroma citrus, ditanam bersama jeruk dan sayuran.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 11,
+            "nama" : "Kopi Kintamani",
+            "rasa" : "Fruity, citrus aroma",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "NTT",
+            "deskripsi" : "Arabika dengan aroma bunga, karamel, dan kacang-kacangan, tumbuh di tanah vulkanik.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 12,
+            "nama" : "Kopi Flores Bajawa",
+            "rasa" : "Floral, caramel, nutty",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Sulawesi Selatan",
+            "deskripsi" : "Arabika dengan rasa kompleks, aroma spicy, dan aftertaste rempah yang khas.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 13,
+            "nama" : "Kopi Toraja",
+            "rasa" : "Complex, spicy",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Sulawesi Selatan",
+            "deskripsi" : "Arabika dengan rasa fruity dan floral, tumbuh di ketinggian 1.400\u20132.100 mdpl.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 14,
+            "nama" : "Kopi Kalosi Enrekang",
+            "rasa" : "Fruity, floral",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Kalimantan",
+            "deskripsi" : "Dikenal dengan rasa kuat dan aroma khas, meskipun belum sepopuler daerah lain.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 15,
+            "nama" : "Kopi Robusta Kalimantan",
+            "rasa" : "Strong, unique",
+            "stok" : 19.0
+        },
+        {
+            "asal" : "Lembah Baliem, Papua",
+            "deskripsi" : "Arabika dengan rasa ringan, aroma herbal, dan ditanam secara organik di ketinggian 1.200\u20131.600 mdpl.",
+            "hargaBeliTon" : 2.0,
+            "hargaJualKg" : 2.0,
+            "id" : 16,
+            "nama" : "Kopi Wamena",
+            "rasa" : "Light, herbal",
+            "stok" : 18.989999999999998
         }
     ],
     "daftarPengguna" : 
@@ -38,6 +188,13 @@
             "pembeli" : "R",
             "totalHarga" : 2000.0,
             "waktu" : "2025-05-20 22:29:01"
+        },
+        {
+            "jumlahKg" : 10,
+            "namaKopi" : "Kopi Wamena",
+            "pembeli" : "R",
+            "totalHarga" : 20.0,
+            "waktu" : "2025-05-29 22:47:19"
         }
     ]
 }
